@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- Latest compiled and minified CSS & JS -->
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+
+  <style>
+    .btn {
+      background-color: DodgerBlue;
+      border: none;
+      color: white;
+      padding: 12px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Darker background on mouse-over */
+    .btn:hover {
+      background-color: RoyalBlue;
+    }
+  </style>
+
+  <style>
+    .btnn {
+      background-color:Grey;
+      border: none;
+      color: white;
+      padding: 12px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+
+  <style>
+    .btns-circle {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 12px;
+      line-height: 1.428571429;
+      border-radius: 15px;
+    }
+  </style>
+  
+  <script>
+    $(document).ready(function() {
+      $.get("http://instagram.norbit.com.tr/api/post",function(data){
+
+        $.get("http://instagram.norbit.com.tr/api/post_like",function(dat){
+
+          $.get("http://instagram.norbit.com.tr/api/post_comment",function(comm){
+
+            for(var i in data.message){
+              var s=data.message[i];
+
+              $( ".ortala" ).append( "<p><img class='img-rounded' width='500' height='400'  src='http://instagram.norbit.com.tr/"+s.image+"' ></p>"   );
+              $( ".ortala" ).append( "<p>"+s.description+"</p>" );
+
+              $( ".ortala" ).append( "<span><button class=' btn'onclick='begen("+s.l_counter+")'>beğeniSil </button></span>" );
+
+               $( ".ortala" ).append( "<span style='margin-left:56%;'><button class=' btn'onclick='yorum("+s.id+")'>yorum <i class='fas fa-comments'></i> </button></span>" );
+
+                      
+              var l_counter=0;
+
+              var temp=s;
+
+              for(var j in dat.message){
+                var temp2=dat.message[j];
+
+                if(temp2.post_id==temp.id){
+                  l_counter--;
+                }
+              }
+              
+              $( ".ortala" ).append( "<p>"+l_counter+"</p>" );
+
+
+
+              for(var i in comm.message){
+                var c=comm.message[i];
+                //console.log(c.comment);
+                if(c.post_id==s.id){
+                  $( ".ortala" ).append( "<p><button class='btnn'>"+c.comment+"</button></p>" );
+                }
+
+                var str="";
+                u_id=localStorage.getItem("id");
+                if(c.user_id==u_id){
+                  //str="<p>"+"<input onclick='sil("+c.id+")' type='button' value='sil' id='sonuc'/>"+"<p>";
+                  str="<p>"+"<button class='btns btn-danger btns-circle' onclick='sil("+c.id+")'>sil <i class='glyphicon glyphicon-remove'></i> </button>"+"<p>";
+                  //str+="<p>"+c.comment+str+"<p>";
+                  $( ".ortala" ).append( str );
+                }
+
+              }
+
+            }
+
+          }).fail(function(){
+            alert("post_comment error");
+          })
+
+        }).fail(function(){
+          alert("post_like ERROR");
+        })
+      }).fail(function(){
+        alert("error");
+      })  
+    });
+
+    function begen(id){
+
+     $.post("http://instagram.norbit.com.tr/api/post_like/" + id,
+      {
+        '_method':'DELETE', 
+      },
+
+      function(data,status){
+
+        alert("begeni silindi");
+        //location.reload();
+
+      }).fail(function (data,status) {
+
+        alert("begeni silinemedi");
+
+      });
+
+    }
+
+    function yorum(id){
+
+      var c_id=localStorage.getItem("id");
+
+      $.post("http://instagram.norbit.com.tr/api/post_comment",
+      {
+        user_id: c_id,
+        post_id: id,
+        comment:prompt(),
+      },
+
+      function(data,status){
+
+        location.reload();
+        //alert("begenildi");
+
+      }).fail(function (data,status) {
+        //alert("olmadı");
+
+      });
+
+    }
+
+    function sil(id){
+
+      $.post("http://instagram.norbit.com.tr/api/post_comment/" + id,
+      {
+        '_method':'DELETE', 
+      },
+
+      function(data,status){
+
+        alert("SİLİNDİ");
+        location.reload();
+
+      }).fail(function (data,status) {
+
+        alert("silinemedi");
+
+      });
+
+    }
+/*
+    function begeniSil(id){
+
+     $.post("http://instagram.norbit.com.tr/api/post_like/" + id,
+      {
+        '_method':'DELETE', 
+      },
+
+      function(data,status){
+
+        alert("begeni silindi");
+        //location.reload();
+
+      }).fail(function (data,status) {
+
+        alert("begeni silinemedi");
+
+      });
+
+  }
+
+*/
+</script>
+
+</head>
+<body>
+
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Instagram</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a  href="#" class="dropdown-toggle" data-toggle="dropdown" id="username"></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Çıkış Yap</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-offset-3 col-md-6 ortala">
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+</body>
+</html> 
